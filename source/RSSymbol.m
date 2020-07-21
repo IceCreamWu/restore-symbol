@@ -42,4 +42,23 @@
     s.address = addr;
     return s;
 }
+
++ (NSData *)jsonDataOfSymbols:(NSArray<RSSymbol *> *)symbols vmaddr:(NSUInteger)vmaddr {
+    NSArray *sortSymbols = [symbols sortedArrayUsingComparator:^NSComparisonResult(RSSymbol *obj1, RSSymbol *obj2) {
+        return (obj1.address < obj2.address ? NSOrderedAscending : NSOrderedDescending);
+    }];
+    NSMutableArray *array = [[NSMutableArray alloc] init];
+    for (RSSymbol *symbol in sortSymbols) {
+        NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+        dict[RS_JSON_KEY_SYMBOL_NAME] = symbol.name;
+        dict[RS_JSON_KEY_ADDRESS] = [NSString stringWithFormat:@"0x%llx", symbol.address];
+        dict[RS_JSON_KEY_OFFSET] = @(symbol.address - vmaddr);
+        [array addObject:dict];
+    }
+    
+    NSError *e = nil;
+    NSData *data = [NSJSONSerialization dataWithJSONObject:array options:NSJSONWritingPrettyPrinted error:&e];
+    return data;
+}
+
 @end

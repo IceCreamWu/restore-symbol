@@ -26,6 +26,7 @@
 #define RS_OPT_DISABLE_OC_DETECT 1
 #define RS_OPT_VERSION 2
 #define RS_OPT_REPLACE_RESTRICT 3
+#define RS_OPT_OUTPUT_SYMBOLS 4
 
 
 
@@ -38,7 +39,8 @@ void print_usage(void)
             "Usage: restore-symbol -o <output-file> [-j <json-symbol-file>] <mach-o-file>\n"
             "\n"
             "  where options are:\n"
-            "        -o <output-file>           New mach-o-file path\n"
+            "        -o <output-file>           New mach-o-file path or output-symbol json-file path(with --output-symbol)\n"
+            "        --output-symbol            Output all symbols to a json file but not new mach-o-file"
             "        --disable-oc-detect        Disable auto detect and add oc method into symbol table,\n"
             "                                   only add symbol in json file\n"
             "        --replace-restrict         New mach-o-file will replace the LC_SEGMENT(__RESTRICT,__restrict)\n"
@@ -53,7 +55,7 @@ void print_usage(void)
 
 
 
-void restore_symbol(NSString * inpath, NSString *outpath, NSString *jsonPath, bool oc_detect_enable, bool replace_restrict);
+void restore_symbol(NSString * inpath, NSString *outpath, NSString *jsonPath, bool oc_detect_enable, bool replace_restrict, bool output_symbols);
 
 int main(int argc, char * argv[]) {
     
@@ -62,6 +64,7 @@ int main(int argc, char * argv[]) {
     
     bool oc_detect_enable = true;
     bool replace_restrict = false;
+    bool output_symbols = false;
     NSString *inpath = nil;
     NSString * outpath = nil;
     NSString *jsonPath = nil;
@@ -76,6 +79,7 @@ int main(int argc, char * argv[]) {
         { "json",                    required_argument, NULL, 'j' },
         { "version",                 no_argument,       NULL, RS_OPT_VERSION },
         { "replace-restrict",        no_argument,       NULL, RS_OPT_REPLACE_RESTRICT },
+        { "output-symbols",          no_argument,       NULL, RS_OPT_OUTPUT_SYMBOLS },
         
         { NULL,                      0,                 NULL, 0 },
         
@@ -109,6 +113,10 @@ int main(int argc, char * argv[]) {
             case RS_OPT_REPLACE_RESTRICT:
                 replace_restrict = true;
                 break;
+                    
+            case RS_OPT_OUTPUT_SYMBOLS:
+                output_symbols= true;
+                break;
             default:
                 break;
         }
@@ -124,6 +132,6 @@ int main(int argc, char * argv[]) {
     }
     
     
-    restore_symbol(inpath, outpath, jsonPath, oc_detect_enable, replace_restrict);
+    restore_symbol(inpath, outpath, jsonPath, oc_detect_enable, replace_restrict, output_symbols);
     
 }

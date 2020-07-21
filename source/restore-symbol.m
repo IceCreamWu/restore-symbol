@@ -33,7 +33,7 @@
 
 
 
-void restore_symbol(NSString * inpath, NSString *outpath, NSString *jsonPath, bool oc_detect_enable, bool replace_restrict){
+void restore_symbol(NSString * inpath, NSString *outpath, NSString *jsonPath, bool oc_detect_enable, bool replace_restrict, bool output_symbols){
     
     
     
@@ -125,6 +125,17 @@ void restore_symbol(NSString * inpath, NSString *outpath, NSString *jsonPath, bo
             [collector addSymbols:jsonSymbols];
         }
         fprintf(stderr, "Parse finish.\n");
+    }
+    
+    if (output_symbols) {
+        CDLCSegment *text_seg = [machOFile segmentWithName:@"__TEXT"];
+        NSData *outputJsonData = [RSSymbol jsonDataOfSymbols:collector.symbols vmaddr:text_seg.vmaddr];
+        NSError *outputErr = nil;
+        [outputJsonData writeToFile:outpath options:NSDataWritingWithoutOverwriting error:&outputErr];
+        if (outputErr) {
+            fprintf(stderr,"Write file error : %s", [outputErr localizedDescription].UTF8String);
+        }
+        return;
     }
     
     
